@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Classement Badminton – HMIF</title>
+
+  <!-- Tailwind (utility helpers) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Custom styles -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════════
+       HEADER
+  ════════════════════════════════════════════════════════ -->
+  <header class="site-header">
+    <div class="header-inner">
+
+      <!-- Icon -->
+      <div class="header-icon" aria-hidden="true">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="36" height="36">
+          <circle cx="32" cy="52" r="10" fill="#f59e0b"/>
+          <line x1="32" y1="42" x2="12" y2="8"  stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="32" y1="42" x2="22" y2="6"  stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="32" y1="42" x2="32" y2="4"  stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="32" y1="42" x2="42" y2="6"  stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="32" y1="42" x2="52" y2="8"  stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+          <ellipse cx="32" cy="10" rx="20" ry="6" fill="none" stroke="white" stroke-width="2"/>
+        </svg>
+      </div>
+
+      <!-- Title -->
+      <div class="header-title">
+        <h1>Classement Badminton</h1>
+        <p>Himpunan Mahasiswa Informatika</p>
+      </div>
+
+      <!-- Season badge -->
+      <span class="season-badge">🏆 Season 2026</span>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════════════
+       STATS CARDS
+  ════════════════════════════════════════════════════════ -->
+  <section class="stats-grid" aria-label="Statistik">
+
+    <div class="stat-card">
+      <div class="stat-icon">👥</div>
+      <div class="stat-number" id="stat-players">0</div>
+      <div class="stat-label">Total Pemain</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">🏸</div>
+      <div class="stat-number" id="stat-matches">0</div>
+      <div class="stat-label">Total Pertandingan</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">🥇</div>
+      <div class="stat-number" id="stat-top" style="font-size:1.2rem;letter-spacing:-.3px">–</div>
+      <div class="stat-label">Pemain Terbaik</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">📊</div>
+      <div class="stat-number">
+        <span id="stat-avg-num">0</span><span style="font-size:1.2rem">%</span>
+      </div>
+      <div class="stat-label">Rata-rata Win Rate</div>
+    </div>
+
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       MAIN
+  ════════════════════════════════════════════════════════ -->
+  <main class="main-wrap">
+
+    <!-- Toolbar -->
+    <div class="toolbar" role="search">
+
+      <!-- Search -->
+      <div class="search-wrap">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <input id="search" type="search" placeholder="Cari nama / NIM…" aria-label="Cari pemain" autocomplete="off"/>
+      </div>
+
+      <!-- Filter kategori -->
+      <select id="filter-kategori" aria-label="Filter kategori">
+        <option value="">Semua Kategori</option>
+        <option>Tunggal Putra</option>
+        <option>Tunggal Putri</option>
+        <option>Ganda Putra</option>
+        <option>Ganda Putri</option>
+        <option>Ganda Campuran</option>
+      </select>
+
+      <!-- Sort -->
+      <select id="sort-by" aria-label="Urutkan berdasarkan">
+        <option value="poin">Urutkan: Poin</option>
+        <option value="menang">Urutkan: Menang</option>
+        <option value="winrate">Urutkan: Win Rate</option>
+        <option value="nama">Urutkan: Nama</option>
+      </select>
+
+      <!-- Add -->
+      <button class="btn-add" onclick="openModal()" aria-label="Tambah pemain baru">
+        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+        Tambah Pemain
+      </button>
+    </div>
+
+    <!-- Table card -->
+    <div class="table-card" role="region" aria-label="Tabel classement">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th class="center" scope="col">#</th>
+              <th scope="col">Pemain</th>
+              <th scope="col" class="hidden-sm">Kategori</th>
+              <th scope="col" class="center" title="Total Pertandingan">M</th>
+              <th scope="col" class="center" title="Menang">W</th>
+              <th scope="col" class="center" title="Kalah">L</th>
+              <th scope="col" class="center hidden-md">Win %</th>
+              <th scope="col" class="center">Poin</th>
+              <th scope="col" class="center">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="table-body"></tbody>
+        </table>
+      </div>
+
+      <!-- Empty state -->
+      <div id="empty-state" class="empty-state hidden" role="status">
+        <div class="empty-icon">🔍</div>
+        <p>Tidak ada pemain ditemukan.</p>
+      </div>
+    </div>
+
+    <!-- Keyboard hint -->
+    <p style="font-size:.72rem;color:#94a3b8;margin-top:10px;text-align:right">
+      Tip: tekan <kbd style="background:#e2e8f0;padding:1px 5px;border-radius:4px;font-family:monospace">Ctrl+K</kbd> untuk fokus pencarian · <kbd style="background:#e2e8f0;padding:1px 5px;border-radius:4px;font-family:monospace">Esc</kbd> tutup modal
+    </p>
+
+  </main>
+
+  <!-- ═══════════════════════════════════════════════════════
+       MODAL – ADD / EDIT
+  ════════════════════════════════════════════════════════ -->
+  <div id="modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-box">
+
+      <button class="modal-close" onclick="closeModal()" aria-label="Tutup modal">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M18 6 6 18M6 6l12 12"/>
+        </svg>
+      </button>
+
+      <h2 class="modal-title" id="modal-title">Tambah Pemain Baru</h2>
+
+      <form id="player-form" onsubmit="submitForm(event)" novalidate>
+        <input type="hidden" id="edit-id"/>
+
+        <div class="form-group">
+          <label class="form-label" for="f-nama">Nama Pemain *</label>
+          <input id="f-nama" class="form-input" type="text" required
+            placeholder="contoh: Ahmad Zaki" autocomplete="name"/>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="f-nim">NIM</label>
+          <input id="f-nim" class="form-input" type="text"
+            placeholder="contoh: 12345678" autocomplete="off"/>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="f-kategori">Kategori *</label>
+          <select id="f-kategori" class="form-select" required>
+            <option value="">-- Pilih Kategori --</option>
+            <option>Tunggal Putra</option>
+            <option>Tunggal Putri</option>
+            <option>Ganda Putra</option>
+            <option>Ganda Putri</option>
+            <option>Ganda Campuran</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label" for="f-menang">Menang (W)</label>
+            <input id="f-menang" class="form-input" type="number" min="0" value="0"/>
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label" for="f-kalah">Kalah (L)</label>
+            <input id="f-kalah"  class="form-input" type="number" min="0" value="0"/>
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label" for="f-poin">Poin</label>
+            <input id="f-poin"   class="form-input" type="number" min="0" value="0"/>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-cancel" onclick="closeModal()">Batal</button>
+          <button type="submit" class="btn-submit">Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       MODAL – RECORD MATCH
+  ════════════════════════════════════════════════════════ -->
+  <div id="match-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-label="Catat Pertandingan">
+    <div class="modal-box match-modal-box">
+
+      <button class="modal-close" onclick="closeMatchModal()" aria-label="Tutup">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M18 6 6 18M6 6l12 12"/>
+        </svg>
+      </button>
+
+      <h2 class="modal-title" style="margin-bottom:6px">🏸 Catat Pertandingan</h2>
+      <p class="match-player-label">Pemain: <span id="match-player-name"></span></p>
+
+      <input type="hidden" id="match-player-id"/>
+
+      <div class="match-btn-wrap">
+        <button class="match-btn match-btn-win"  onclick="recordMatch(true)">
+          🏆 Menang
+          <span class="match-pts-info">+30 poin</span>
+        </button>
+        <button class="match-btn match-btn-lose" onclick="recordMatch(false)">
+          😤 Kalah
+          <span class="match-pts-info">−10 poin</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       TOAST
+  ════════════════════════════════════════════════════════ -->
+  <div id="toast" class="toast" role="status" aria-live="polite">
+    <span class="toast-icon" id="toast-icon"></span>
+    <span id="toast-msg"></span>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       FOOTER
+  ════════════════════════════════════════════════════════ -->
+  <footer class="site-footer">
+    HMIF Badminton Classement &nbsp;·&nbsp; Season 2026 &nbsp;·&nbsp;
+    Data tersimpan di browser Anda
+  </footer>
+
+  <!-- ═══════════════════════════════════════════════════════
+       Tailwind hidden-sm / hidden-md helpers
+       (used via plain CSS class in style.css)
+  ════════════════════════════════════════════════════════ -->
+  <style>
+    @media (max-width: 640px)  { .hidden-sm { display: none !important; } }
+    @media (max-width: 900px)  { .hidden-md { display: none !important; } }
+  </style>
+
+  <!-- App logic -->
+  <script src="app.js"></script>
+</body>
+</html>
